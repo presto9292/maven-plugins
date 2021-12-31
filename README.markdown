@@ -4,7 +4,11 @@ This fork's focus is copy-maven-plugin only. All other plugins in this project a
 
 **Supports Maven 3 and upwards!**
 
-Run `"mvn -s settings.xml clean install"` to build and install plugins into your local Maven repository.
+Run `"mvn clean install"` to build and install plugins into your local Maven repository.
 
+Upload to a local nexus registry:
+1. copy-maven-plugin jar and pom artifacts (single upload action)
+2. maven-common jar and pom artifcats (single upload action)
+3. mojo-parent-pom (single upload action)
 
 A copy of the documentation from http://wayback.archive.org/web/20140707010223/http://evgeny-goldin.com/w/index.php?title=Copy-maven-plugin&printable=yes is included in the sources.
