@@ -8,14 +8,14 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>maven-common</artifactId>
     <packaging>jar</packaging>
-    <version>0.4</version>
+    <version>0.5</version>
     <name>[${project.groupId}:${project.artifactId}:${project.version}]</name>
 
 
     <parent>
         <groupId>com.github.goldin</groupId>
         <artifactId>main.plugins</artifactId>
-        <version>0.4</version>
+        <version>0.5</version>
         <relativePath>..</relativePath>
     </parent>
 

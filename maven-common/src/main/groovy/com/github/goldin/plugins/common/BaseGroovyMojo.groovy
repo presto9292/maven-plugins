@@ -1,5 +1,6 @@
 package com.github.goldin.plugins.common
 
+import static com.github.goldin.plugins.common.ConversionUtils.*
 import static com.github.goldin.plugins.common.GMojoUtils.*
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
@@ -12,9 +13,14 @@ import org.apache.maven.plugins.annotations.Parameter
 import org.apache.maven.project.MavenProject
 import org.apache.tools.ant.DefaultLogger
 import org.codehaus.gmaven.mojo.GroovyMojo
+import org.codehaus.plexus.DefaultPlexusContainer
 import org.gcontracts.annotations.Ensures
 import org.gcontracts.annotations.Requires
 import org.slf4j.LoggerFactory
+import org.eclipse.aether.RepositorySystem
+import org.eclipse.aether.RepositorySystemSession
+import org.eclipse.aether.repository.RemoteRepository
+import org.eclipse.aether.resolution.ArtifactRequest
 import org.springframework.util.ReflectionUtils
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -27,6 +33,9 @@ import java.lang.reflect.Modifier
 abstract class BaseGroovyMojo extends GroovyMojo
 {
     static final String SILENCE = 'SILENCE'
+
+    @Component
+    DefaultPlexusContainer container
 
     @Parameter ( required = true, defaultValue = '${project}' )
     MavenProject project
@@ -44,8 +53,22 @@ abstract class BaseGroovyMojo extends GroovyMojo
     @Parameter
     private String runIf
 
+    /**
+     * Aether components:
+     * http://www.sonatype.org/aether/
+     * http://eclipse.org/aether/
+     * https://docs.sonatype.org/display/AETHER/Home
+     * http://aether.sonatype.org/using-aether-in-maven-plugins.html
+     */
+
     @Component
-    ICompatibilityProvider compatibilityProvider
+    RepositorySystem repoSystem
+
+    @Parameter ( defaultValue = '${repositorySystemSession}', readonly = true )
+    RepositorySystemSession repoSession
+
+    @Parameter ( defaultValue = '${project.remoteProjectRepositories}', readonly = true )
+    List<RemoteRepository> remoteRepos
 
 
     /**
@@ -66,10 +89,11 @@ abstract class BaseGroovyMojo extends GroovyMojo
 
         if ( ! artifact.file )
         {
+            final request = new ArtifactRequest( toAetherArtifact( artifact ), remoteRepos, null )
             try
             {
                 if ( verbose ) { log.info( "Resolving [$artifact]: optional [$artifact.optional], failOnError [$failOnError]" ) }
-                artifact.file = compatibilityProvider.resolveFile(artifact)
+                artifact.file = repoSystem.resolveArtifact( repoSession, request ).artifact?.file
                 if ( verbose ) { log.info( "Resolving [$artifact]: done - [$artifact.file]" ) }
             }
             catch ( e )
@@ -134,22 +158,22 @@ abstract class BaseGroovyMojo extends GroovyMojo
 
         if ( o.class.name.startsWith( 'org.codehaus.gmaven.plugin.compile.' ) && ( fieldName == 'log' ))
         {   /**
-             * 'o'                 - org.codehaus.gmaven.plugin.compile.CompileMojo or
-             *                       org.codehaus.gmaven.plugin.compile.TestCompileMojo
-             * 'o.log'             - org.sonatype.gossip.Gossip.LoggerImpl
-             * 'o.log.cachedLevel' - org.sonatype.gossip.Level
-             */
+         * 'o'                 - org.codehaus.gmaven.plugin.compile.CompileMojo or
+         *                       org.codehaus.gmaven.plugin.compile.TestCompileMojo
+         * 'o.log'             - org.sonatype.gossip.Gossip.LoggerImpl
+         * 'o.log.cachedLevel' - org.sonatype.gossip.Level
+         */
             final errorLevel = Enum.valueOf(( Class<Enum> ) o.class.classLoader.loadClass( 'org.sonatype.gossip.Level' ), 'ERROR' )
             setFieldValue( currentValue, 'cachedLevel', errorLevel )
         }
         else
         {
             final boolean isAssignable = ( fieldValue == null )   ||
-                                         ( field.type.primitive ) ||
-                                         field.type.isInstance( fieldValue )
+                    ( field.type.primitive ) ||
+                    field.type.isInstance( fieldValue )
             assert isAssignable,
-                   "Field [$field.name][${ field.type.name }] of [${ o.class.name }] " +
-                   "is not assignment-compatible with [$fieldValue][${ fieldValue.class.name }]"
+                    "Field [$field.name][${ field.type.name }] of [${ o.class.name }] " +
+                            "is not assignment-compatible with [$fieldValue][${ fieldValue.class.name }]"
 
             if ( Modifier.isFinal( field.modifiers ))
             {
@@ -220,12 +244,12 @@ abstract class BaseGroovyMojo extends GroovyMojo
     {
         final updateLoggers = {
             AntBuilder antBuilder ->
-            for ( logger in antBuilder.project.buildListeners.findAll{ it instanceof DefaultLogger })
-            {
-                setFieldValue( logger, DefaultLogger, 'out', nullPrintStream())
-                setFieldValue( logger, DefaultLogger, 'err', nullPrintStream())
-            }
-            antBuilder
+                for ( logger in antBuilder.project.buildListeners.findAll{ it instanceof DefaultLogger })
+                {
+                    setFieldValue( logger, DefaultLogger, 'out', nullPrintStream())
+                    setFieldValue( logger, DefaultLogger, 'err', nullPrintStream())
+                }
+                antBuilder
         }
 
         AntBuilder.metaClass.constructor       = { updateLoggers( AntBuilder.getConstructor().newInstance())}
