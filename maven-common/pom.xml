@@ -143,20 +143,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
-            <artifactId>aether-api</artifactId>
-            <version>${sonatype-aether-version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.sonatype.aether</groupId>
-            <artifactId>aether-util</artifactId>
-            <version>${sonatype-aether-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-impl</artifactId>
-            <version>${sonatype-aether-version}</version>
+            <version>${aether-version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- ~~~~~~~~~~~~~~~~~~~~~~~ -->

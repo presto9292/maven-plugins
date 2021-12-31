@@ -52,7 +52,7 @@
         <java-version>1.6</java-version>
 
         <!-- http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.apache.maven%22%20AND%20a%3A%22maven-core%22 -->
-        <maven-version>3.0.5</maven-version>
+        <maven-version>3.2.1</maven-version>
 
         <!-- http://evgenyg.artifactoryonline.com/evgenyg/plugins-releases/com/github/goldin/about-maven-plugin/ -->
         <previous-plugins-version>0.3-beta-1</previous-plugins-version>
@@ -80,7 +80,6 @@
 
         <!-- http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.sonatype.aether%22%20AND%20a%3A%22aether-api%22 -->
         <aether-version>1.0.2.v20150114</aether-version>
-        <sonatype-aether-version>1.13.1</sonatype-aether-version>
 
         <!-- http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.gcontracts%22%20AND%20a%3A%22gcontracts-core%22 -->
         <gcontracts-version>1.2.12</gcontracts-version>

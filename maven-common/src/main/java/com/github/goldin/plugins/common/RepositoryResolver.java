@@ -41,15 +41,7 @@ public class RepositoryResolver extends AbstractLogEnabled implements ICompatibi
 
   private String _getHint()
   {
-    String hint = _isMaven31() ? "maven31" : "maven30";
-    getLogger().info("Running deploy check using " + hint);
-    return hint;
-  }
-
-  private boolean _isMaven31()
-  {
-    // Maven 3.1 specific class, cannot be found for 3.0.
-    return _canFindCoreClass("org.eclipse.aether.artifact.Artifact");
+    return "maven31";
   }
 
   private boolean _canFindCoreClass(final String className)
