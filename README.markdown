@@ -2,7 +2,7 @@ This is a fork of maven-plugins https://github.com/evgeny-goldin/maven-plugins t
 
 This fork's focus is copy-maven-plugin only. All other plugins in this project are not respected.
 
-**Supports Maven 3 and upwards!**
+**Supports Maven 3 and upwards**
 
 Run `"mvn clean install"` to build and install plugins into your local Maven repository.
 
